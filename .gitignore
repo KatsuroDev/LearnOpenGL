@@ -1,0 +1,5 @@
+## Ignore the build file of the LearnOpenGL project
+
+# Build result
+build/
+

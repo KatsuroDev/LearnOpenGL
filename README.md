@@ -1,2 +1,2 @@
 # LearnOpenGL
-Me learning about opengl, maybe a ealry version of a rendering engine
+Me learning about opengl, maybe a early version of a rendering engine
