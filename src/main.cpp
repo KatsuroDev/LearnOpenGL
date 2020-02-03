@@ -49,12 +49,17 @@ int main()
 Shader ourShader("../res/shaders/shader.vs", "../res/shaders/shader.fs");
 
 float vertices[] = {
-	  // Position           // Colors
-	  0.0f,  0.5f,  0.0f,  0.0f, 0.0f, 1.0f,
-	 -0.5f, -0.5f,  0.0f,  0.0f, 1.0f, 0.0f,
-	  0.5f, -0.5f,  0.0f,  1.0f, 0.0f, 0.0f
+	  // Position           // Colors					// Tex Coords
+	  0.5f,  0.5f,  0.0f,  1.0f, 0.0f, 0.0f,  1.0f, 1.0f, // Top right
+	  0.5f, -0.5f,  0.0f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f, // Bottom right
+	 -0.5f, -0.5f,  0.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f, // Bottom left
+	 -0.5f,  0.5f,  0.0f,  1.0f, 1.0f, 0.0f,  0.0f, 1.0f  // Top left
 };
 
+/*unsigned int indices[] = {
+		0, 1, 3,
+		1, 2, 3
+};*/
 
 	// 0. copy our vertices array in a buffer for OpenGL to use
 	unsigned int VBO, VAO/*, EBO*/;
@@ -65,16 +70,20 @@ float vertices[] = {
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	/*glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);*/
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
   // Position Attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
 	// Color Attribute
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3* sizeof(float)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3* sizeof(float)));
 	glEnableVertexAttribArray(1);
+
+	// Tex Coords Attribute
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6*sizeof(float)));
+	glEnableVertexAttribArray(2);
 
 	while (!glfwWindowShouldClose(window)) // Render Loop, check if the user closed the window, by clicking X or else.
 	{
@@ -89,10 +98,12 @@ float vertices[] = {
 
 		ourShader.Use();
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		//glDrawArrays(GL_TRIANGLES, 0, 3);
+
 
 		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		glfwSwapBuffers(window); // Swap the buffers every iterations
 		glfwPollEvents(); // Check events
