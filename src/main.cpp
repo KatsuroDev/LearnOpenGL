@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cmath>
 #include "Shader.h"
+#include "stb_image.h"
 
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
@@ -56,22 +57,22 @@ float vertices[] = {
 	 -0.5f,  0.5f,  0.0f,  1.0f, 1.0f, 0.0f,  0.0f, 1.0f  // Top left
 };
 
-/*unsigned int indices[] = {
+unsigned int indices[] = {
 		0, 1, 3,
 		1, 2, 3
-};*/
+};
 
 	// 0. copy our vertices array in a buffer for OpenGL to use
-	unsigned int VBO, VAO/*, EBO*/;
+	unsigned int VBO, VAO, EBO;
 	glGenBuffers(1, &VBO);
-	//glGenBuffers(1, &EBO);
+	glGenBuffers(1, &EBO);
 	glGenVertexArrays(1, &VAO);
 
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
   // Position Attribute
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
@@ -84,6 +85,32 @@ float vertices[] = {
 	// Tex Coords Attribute
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6*sizeof(float)));
 	glEnableVertexAttribArray(2);
+
+
+// LOAD AND CREATE A TEXTURE
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~
+	unsigned int texture;
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
+	// Set the texture wrapping/filtering options (on the currently bound texture object)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// Load and generates the texture
+	int width, height, nrChannels;
+	unsigned char *data = stbi_load("../res/tex/container.jpg", &width, &height, &nrChannels, 0);
+	if(data)
+	{
+	  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	  glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+	  std::cout << "Failed to load texture\n";
+	}
+	stbi_image_free(data);
+
 
 	while (!glfwWindowShouldClose(window)) // Render Loop, check if the user closed the window, by clicking X or else.
 	{
