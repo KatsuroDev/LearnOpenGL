@@ -38,7 +38,7 @@ ifeq ($(shell uname -s), Linux)
 LINKER_FLAGS = -I./inc/ -L./lib/Linux/ -lGLEW -lGL -lglfw
 endif
 ifeq ($(OS),Windows_NT)
-LINKER_FLAGS = -I"./inc/" -L"lib/Windows" -I"./inc/lua" -static  -std=c++14 -std=gnu++14 -Wunused-parameter -Wstrict-aliasing -lmingw32 -lSDL2main -lSDL2 -lglew32s -llibSOIL -lopenal32 -lopengl32 -lfreetype -lSDL2_net -llua53 -dl #-I"./inc/steam/" -lsteam_api #-llua53 -dl
+LINKER_FLAGS = -I"./inc/" -L"lib/Windows" -static  -std=c++14 -std=gnu++14 -Wunused-parameter -Wstrict-aliasing -lmingw32 -lglew32s -lglfw -lopengl32 -dl #-I"./inc/steam/" -lsteam_api #-llua53 -dl
 endif
 
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
