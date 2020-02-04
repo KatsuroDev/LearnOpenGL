@@ -89,9 +89,10 @@ unsigned int indices[] = {
 
 // LOAD AND CREATE A TEXTURE
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~
-	unsigned int texture;
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	stbi_set_flip_vertically_on_load(true); // Flip the image vertically to have the right view  
+	unsigned int texture1;
+	glGenTextures(1, &texture1);
+	glBindTexture(GL_TEXTURE_2D, texture1);
 	// Set the texture wrapping/filtering options (on the currently bound texture object)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -111,6 +112,24 @@ unsigned int indices[] = {
 	}
 	stbi_image_free(data);
 
+	unsigned int texture2;
+	glGenTextures(1, &texture2);
+	glBindTexture(GL_TEXTURE_2D, texture2);
+	data = stbi_load("../res/tex/awesomeface.png", &width, &height, &nrChannels, 0);
+	if (data)
+	{
+    	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    	glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture\n";
+	}
+	stbi_image_free(data);
+
+	ourShader.Use();
+	glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0);
+	ourShader.SetInt("texture2", 1);
 
 	while (!glfwWindowShouldClose(window)) // Render Loop, check if the user closed the window, by clicking X or else.
 	{
@@ -124,12 +143,16 @@ unsigned int indices[] = {
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		ourShader.Use();
+
 		glBindVertexArray(VAO);
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
 
 
 		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		glBindTexture(GL_TEXTURE_2D, texture);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture1);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, texture2);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		glfwSwapBuffers(window); // Swap the buffers every iterations
