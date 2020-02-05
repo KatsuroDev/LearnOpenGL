@@ -12,6 +12,7 @@
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height); // Allow to resize the window and the viewport as well, GLFW gonna use this function on its own.
 void processInput(GLFWwindow* window); // Process all input from the window
+	float alphaAwesomeFace = 0.0f;
 
 
 int main()
@@ -89,15 +90,15 @@ unsigned int indices[] = {
 
 // LOAD AND CREATE A TEXTURE
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~
-	stbi_set_flip_vertically_on_load(true); // Flip the image vertically to have the right view  
+	stbi_set_flip_vertically_on_load(true); // Flip the image vertically to have the right view
 	unsigned int texture1;
 	glGenTextures(1, &texture1);
 	glBindTexture(GL_TEXTURE_2D, texture1);
 	// Set the texture wrapping/filtering options (on the currently bound texture object)
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	// Load and generates the texture
 	int width, height, nrChannels;
 	unsigned char *data = stbi_load("../res/tex/container.jpg", &width, &height, &nrChannels, 0);
@@ -115,6 +116,12 @@ unsigned int indices[] = {
 	unsigned int texture2;
 	glGenTextures(1, &texture2);
 	glBindTexture(GL_TEXTURE_2D, texture2);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
 	data = stbi_load("../res/tex/awesomeface.png", &width, &height, &nrChannels, 0);
 	if (data)
 	{
@@ -143,6 +150,7 @@ unsigned int indices[] = {
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		ourShader.Use();
+		ourShader.SetFloat("awesomefacealpha", alphaAwesomeFace);
 
 		glBindVertexArray(VAO);
 		//glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -174,6 +182,8 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void processInput(GLFWwindow* window)
 {
+
+
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 	if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
@@ -182,4 +192,19 @@ void processInput(GLFWwindow* window)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
 		glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+	if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+	{
+		if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+			alphaAwesomeFace += 0.01f;
+		if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+			alphaAwesomeFace -= 0.01f;
+
+		if(alphaAwesomeFace < 0.0f)
+			alphaAwesomeFace = 0.0f;
+		if(alphaAwesomeFace > 1.0f)
+			alphaAwesomeFace = 1.0f;
+
+	}
+
+
 }
