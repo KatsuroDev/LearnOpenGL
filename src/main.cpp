@@ -4,6 +4,10 @@
 #include <cmath>
 #include "Shader.h"
 #include "stb_image.h"
+#include <GL/glm/glm.hpp>
+#include <GL/glm/gtc/matrix_transform.hpp>
+#include <GL/glm/gtc/type_ptr.hpp>
+
 
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
@@ -13,7 +17,11 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height); // Allow to resize the window and the viewport as well, GLFW gonna use this function on its own.
 void processInput(GLFWwindow* window); // Process all input from the window
 	float alphaAwesomeFace = 0.0f;
+	float degree = 0.0f;
 
+	// Guess it's not for now xd
+	enum { IDLE, UP, DOWN, LEFT, RIGHT };
+	int State;
 
 int main()
 {
@@ -50,12 +58,13 @@ int main()
 
 Shader ourShader("../res/shaders/shader.vs", "../res/shaders/shader.fs");
 
+
 float vertices[] = {
-	  // Position           // Colors					// Tex Coords
-	  0.5f,  0.5f,  0.0f,  1.0f, 0.0f, 0.0f,  1.0f, 1.0f, // Top right
-	  0.5f, -0.5f,  0.0f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f, // Bottom right
-	 -0.5f, -0.5f,  0.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f, // Bottom left
-	 -0.5f,  0.5f,  0.0f,  1.0f, 1.0f, 0.0f,  0.0f, 1.0f  // Top left
+	  // Position  				// Tex Coords
+	  0.5f,  0.5f,  0.0f,  1.0f, 1.0f, // Top right
+	  0.5f, -0.5f,  0.0f,  1.0f, 0.0f, // Bottom right
+	 -0.5f, -0.5f,  0.0f,  0.0f, 0.0f, // Bottom left
+	 -0.5f,  0.5f,  0.0f,  0.0f, 1.0f  // Top left
 };
 
 unsigned int indices[] = {
@@ -76,16 +85,12 @@ unsigned int indices[] = {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
   // Position Attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
-	// Color Attribute
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3* sizeof(float)));
-	glEnableVertexAttribArray(1);
-
 	// Tex Coords Attribute
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6*sizeof(float)));
-	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3*sizeof(float)));
+	glEnableVertexAttribArray(1);
 
 
 // LOAD AND CREATE A TEXTURE
@@ -138,18 +143,32 @@ unsigned int indices[] = {
 	glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0);
 	ourShader.SetInt("texture2", 1);
 
+
+
+
 	while (!glfwWindowShouldClose(window)) // Render Loop, check if the user closed the window, by clicking X or else.
 	{
 
 		processInput(window);
 
-		//RENDER
+		// TRANSFORM
+
+		glm::mat4 trans = glm::mat4(1.0f);
+		trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+		trans = glm::rotate(trans, glm::radians(degree), glm::vec3(0.0f, 0.0f, 1.0f));
+
+
+		// RENDER
 
 		//glClearColor(r,g,b,1.0f);
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		ourShader.Use();
+		// Pass the transform matrix to the uniform
+		unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+
 		ourShader.SetFloat("awesomefacealpha", alphaAwesomeFace);
 
 		glBindVertexArray(VAO);
@@ -204,6 +223,17 @@ void processInput(GLFWwindow* window)
 		if(alphaAwesomeFace > 1.0f)
 			alphaAwesomeFace = 1.0f;
 
+	}
+	if(glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+	{
+		if(glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+			degree += 1.0f;
+		if(glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+			degree -= 1.0f;
+		if(degree > 359.0f)
+			degree = 0.0f;
+		if(degree < 0.0f)
+			degree = 359.0f;
 	}
 
 
