@@ -18,6 +18,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height); // Al
 void processInput(GLFWwindow* window); // Process all input from the window
 	float alphaAwesomeFace = 0.0f;
 	float degree = 0.0f;
+	float x_axis = 0.0f, y_axis = 0.0f, z_axis = -3.0f;
 
 	// Guess it's not for now xd
 	enum { IDLE, UP, DOWN, LEFT, RIGHT };
@@ -60,17 +61,68 @@ Shader ourShader("../res/shaders/shader.vs", "../res/shaders/shader.fs");
 
 
 float vertices[] = {
-	  // Position  				// Tex Coords
-	  0.5f,  0.5f,  0.0f,  1.0f, 1.0f, // Top right
-	  0.5f, -0.5f,  0.0f,  1.0f, 0.0f, // Bottom right
-	 -0.5f, -0.5f,  0.0f,  0.0f, 0.0f, // Bottom left
-	 -0.5f,  0.5f,  0.0f,  0.0f, 1.0f  // Top left
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+     0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+};
+
+glm::vec3 cubePositions[] = {
+  glm::vec3( 0.0f,  0.0f,  0.0f),
+  glm::vec3( 2.0f,  5.0f, -15.0f),
+  glm::vec3(-1.5f, -2.2f, -2.5f),
+  glm::vec3(-3.8f, -2.0f, -12.3f),
+  glm::vec3( 2.4f, -0.4f, -3.5f),
+  glm::vec3(-1.7f,  3.0f, -7.5f),
+  glm::vec3( 1.3f, -2.0f, -2.5f),
+  glm::vec3( 1.5f,  2.0f, -2.5f),
+  glm::vec3( 1.5f,  0.2f, -1.5f),
+  glm::vec3(-1.3f,  1.0f, -1.5f)
 };
 
 unsigned int indices[] = {
 		0, 1, 3,
 		1, 2, 3
 };
+
+	glEnable(GL_DEPTH_TEST);
 
 	// 0. copy our vertices array in a buffer for OpenGL to use
 	unsigned int VBO, VAO, EBO;
@@ -145,49 +197,69 @@ unsigned int indices[] = {
 
 
 
-
 	while (!glfwWindowShouldClose(window)) // Render Loop, check if the user closed the window, by clicking X or else.
 	{
 
 		processInput(window);
 
-		// TRANSFORM
-
-		glm::mat4 trans = glm::mat4(1.0f);
-		trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
-		trans = glm::rotate(trans, glm::radians(degree), glm::vec3(0.0f, 0.0f, 1.0f));
-
-
 		// RENDER
 
 		//glClearColor(r,g,b,1.0f);
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		ourShader.Use();
-		// Pass the transform matrix to the uniform
-		unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
-		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+
+
+
+		// COORD SYSTEM
+
+
+		glm::mat4 view = glm::mat4(1.0f);
+		view = glm::translate(view, glm::vec3(x_axis, y_axis, z_axis));
+
+		glm::mat4 projection = glm::mat4(1.0f);
+		projection = glm::perspective(glm::radians(45.0f), (float)WINDOW_WIDTH/(float)WINDOW_HEIGHT, 0.1f, 100.0f);
+
+		// 3 different ways
+	  //int modelLoc = glGetUniformLocation(ourShader.ID, "model");
+		//glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		int viewLoc = glGetUniformLocation(ourShader.ID, "view");
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
+		ourShader.setMat4("projection", projection);
 
 		ourShader.SetFloat("awesomefacealpha", alphaAwesomeFace);
 
-		glBindVertexArray(VAO);
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
-
-
-		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, texture1);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, texture2);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(VAO);
+		for(unsigned int i = 0; i < 10; i++)
+		{
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, cubePositions[i]);
+			float angle = 20.0f * i;
+			if(i % 3 == 0 || i == 0)
+			{
+				model = glm::rotate(model, glm::radians((float)glfwGetTime()*20.0f), glm::vec3(1.0f, 0.5f, 0.0f));
+			}
+			else
+			{
 
-		trans = glm::mat4(1.0f);
-		trans = glm::translate(trans, glm::vec3(-0.5f, 0.5f, 0.0f));
-		float scaleAmount = sin(glfwGetTime());
-		trans = glm::scale(trans, glm::vec3(scaleAmount, scaleAmount, scaleAmount));
-		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, &trans[0][0]);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+				model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+			}
+			ourShader.setMat4("model", model);
+			glDrawArrays(GL_TRIANGLES, 0 , 36);
+		}
+		//glDrawArrays(GL_TRIANGLES, 0, 3);
+
+
+		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+
+
+		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
 		glfwSwapBuffers(window); // Swap the buffers every iterations
 		glfwPollEvents(); // Check events
 	}
@@ -240,6 +312,27 @@ void processInput(GLFWwindow* window)
 			degree = 0.0f;
 		if(degree < 0.0f)
 			degree = 359.0f;
+	}
+	if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+	{
+		if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		 	x_axis -= 0.1f;
+		if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+			x_axis += 0.1f;
+	}
+	if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+	{
+		if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+		 	y_axis -= 0.1f;
+		if(glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+			y_axis += 0.1f;
+	}
+	if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	{
+		if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		 	z_axis -= 0.1f;
+		if(glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+			z_axis += 0.1f;
 	}
 
 
