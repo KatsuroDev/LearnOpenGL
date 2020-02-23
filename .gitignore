@@ -1,5 +1,6 @@
 ## Ignore the build file of the LearnOpenGL project
+# But don't ignore the res folder inside the build folder, since it's not created otherwise.
 
 # Build result
-build/
-
+build/*
+!build/res/
