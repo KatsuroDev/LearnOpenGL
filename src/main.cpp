@@ -2,7 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <cmath>
-#include "Shader.h"
+#include "shader.h"
 #include "stb_image.h"
 #include <GL/glm/glm.hpp>
 #include <GL/glm/gtc/matrix_transform.hpp>
@@ -34,7 +34,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 	float yaw = -90.0f, pitch = 0.0f;
 	bool firstMouse = true;
 	float lastX = WINDOW_WIDTH/2, lastY = WINDOW_HEIGHT/2;
-	float fov = 45.0f;
+	float fov = 15.0f;
 
 
 int main()
@@ -389,9 +389,9 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	if(fov > 1.0f && fov < 45.0f)
-		fov += yoffset;
-	else if(fov <= 1.0f)
+	if(fov >= 1.0f && fov <= 45.0f)
+		fov -= yoffset;
+	if(fov <= 1.0f)
 		fov = 1.0f;
 	else if(fov >= 45.0f)
 		fov = 45.0f;
