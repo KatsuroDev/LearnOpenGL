@@ -32,7 +32,7 @@ ifeq ($(shell uname -s), Linux)
 CPPFLAGS ?= $(INC_FLAGS)  -std=c++14 -MMD -MP -g -Wall -Wextra -O3 -fpermissive #-Werror
 endif
 ifeq ($(OS),Windows_NT)
-CPPFLAGS ?= $(INC_FLAGS) -g -std=c++14 -std=gnu++14 -MMD -MP -g -Wall -Wextra -O3 -fpermissive -static  -Wunused-parameter -Wstrict-aliasing #-Werror
+CPPFLAGS ?= $(INC_FLAGS) -g -std=c++14 -std=gnu++14 -MMD -MP -g -Wall -Wextra -O3 -fpermissive -static  -Wunused-parameter -Wstrict-aliasing -Wl,-subsystem,windows #-Werror  
 endif
 ifeq ($(UNAME_S), Darwin)
 CPPFLAGS ?= $(INC_FLAGS)
