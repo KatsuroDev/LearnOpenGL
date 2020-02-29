@@ -47,7 +47,7 @@ ifeq ($(OS),Windows_NT)
 LINKER_FLAGS = -I"./inc/" -L"lib/Windows" -static  -std=c++14 -std=gnu++14 -Wunused-parameter -Wstrict-aliasing -lmingw32 -lglew32 -lglfw3 -lopengl32 -lglu32 -lgdi32 -dl #-I"./inc/steam/" -lsteam_api #-llua53 -dl
 endif
 ifeq ($(UNAME_S), Darwin)
-LINKER_FLAGS = -I"./inc/" -L"./lib/macOS" -lGLEW -lGL -lglfw
+LINKER_FLAGS = -I"./inc" -L"./lib/macOS" -lGLEW -lGL -lglfw
 endif
 
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
