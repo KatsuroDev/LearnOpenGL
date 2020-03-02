@@ -11,7 +11,7 @@ endif
 ifeq ($(OS),Windows_NT)
 TARGET_EXEC ?= a.exe
 endif
-ifeq ($(UNAME_S), Darwin) # OS X
+ifeq ($(shell uname -s), Darwin) # OS X
 TARGET_EXEC ?= a.out
 endif
 
@@ -36,7 +36,7 @@ endif
 ifeq ($(OS),Windows_NT)
 CPPFLAGS ?= $(INC_FLAGS) -g -std=c++14 -std=gnu++14 -MMD -MP -g -Wall -Wextra -O3 -fpermissive -static  -Wunused-parameter -Wstrict-aliasing -Wl,-subsystem,windows #-Werror
 endif
-ifeq ($(UNAME_S), Darwin)
+ifeq ($(shell uname -s), Darwin)
 CPPFLAGS ?= $(INC_FLAGS) -std=c++14 -MMD -MP -g -Wall -Wextra -03 -fpermissive
 endif
 # -g to debug  (gdb *.exe)
@@ -48,7 +48,7 @@ endif
 ifeq ($(OS),Windows_NT)
 LINKER_FLAGS = -I"./inc/" -L"lib/Windows" -static  -std=c++14 -std=gnu++14 -Wunused-parameter -Wstrict-aliasing -lmingw32 -lglew32 -lglfw3 -lopengl32 -lglu32 -lgdi32 -dl #-I"./inc/steam/" -lsteam_api #-llua53 -dl
 endif
-ifeq ($(UNAME_S), Darwin)
+ifeq ($(shell uname -s), Darwin)
 LINKER_FLAGS = -I./inc/ -L./lib/macOS -lGLEW -lGL -lglfw
 endif
 
