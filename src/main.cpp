@@ -157,8 +157,8 @@ int main()
 
 		processInput(window);
 
-		lightPos.x = sin(glfwGetTime());
-		lightPos.z = cos(glfwGetTime());
+		lightPos.x = sin(2*glfwGetTime());
+		lightPos.z = cos(2*glfwGetTime());
 
 		// RENDER
 
@@ -193,13 +193,14 @@ int main()
 		lightCubeShader.Use();
 		lightCubeShader.setMat4("projection", projection);
 		lightCubeShader.setMat4("view", view);
+
 		model = glm::mat4(1.0f);
 		model = glm::translate(model, lightPos);
 		model = glm::scale(model, glm::vec3(0.2f));
 		lightCubeShader.setMat4("model", model);
-
 		glBindVertexArray(lightCubeVAO);
 		glDrawArrays(GL_TRIANGLES, 0 , 36);
+
 
 		glfwSwapBuffers(window); // Swap the buffers every iterations
 		glfwPollEvents(); // Check events
