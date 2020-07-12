@@ -157,6 +157,9 @@ int main()
 
 		processInput(window);
 
+		lightPos.x = sin(glfwGetTime());
+		lightPos.z = cos(glfwGetTime());
+
 		// RENDER
 
 		//glClearColor(r,g,b,1.0f);
