@@ -207,6 +207,7 @@ int main()
 
 		// Draw the lamp object
 		lightCubeShader.Use();
+		lightCubeShader.setVec3("lightColor", lightColor);
 		lightCubeShader.setMat4("projection", projection);
 		lightCubeShader.setMat4("view", view);
 
