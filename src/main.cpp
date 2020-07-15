@@ -156,6 +156,8 @@ int main()
 	lightingShader.SetInt("material.diffuse", 0);
 	unsigned int specularMap = loadTexture("./res/tex/container2_specular.png");
 	lightingShader.SetInt("material.specular", 1);
+	unsigned int emissionMap = loadTexture("./res/tex/matrix.jpg");
+	lightingShader.SetInt("material.emission", 2);
 
 
 	while (!glfwWindowShouldClose(window)) // Render Loop, check if the user closed the window, by clicking X or else.
@@ -177,6 +179,7 @@ int main()
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		lightingShader.SetFloat("time", glfwGetTime());
 
 		glm::vec3 lightColor;
 		lightColor.x = sin(glfwGetTime() * 2.0f);
@@ -201,6 +204,8 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, diffuseMap);
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_2D, specularMap);
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, emissionMap);
 
 
 		// CAMERA
