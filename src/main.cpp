@@ -22,7 +22,7 @@ void processInput(GLFWwindow* window); // Process all input from the window
 unsigned int loadTexture(char const* path);
 
 // Camera
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+Camera camera(glm::vec3(25.0f, 2.0f, 25.0f));
 float lastX = WINDOW_WIDTH / 2.0f;
 float lastY = WINDOW_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -120,23 +120,12 @@ int main()
         -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f
     };
 
-	glm::vec3 cubePositions[] = {
-        glm::vec3( 0.0f,  0.0f,  0.0f),
-        glm::vec3( 2.0f,  5.0f, -15.0f),
-        glm::vec3(-1.5f, -2.2f, -2.5f),
-        glm::vec3(-3.8f, -2.0f, -12.3f),
-        glm::vec3( 2.4f, -0.4f, -3.5f),
-        glm::vec3(-1.7f,  3.0f, -7.5f),
-        glm::vec3( 1.3f, -2.0f, -2.5f),
-        glm::vec3( 1.5f,  2.0f, -2.5f),
-        glm::vec3( 1.5f,  0.2f, -1.5f),
-        glm::vec3(-1.3f,  1.0f, -1.5f)
-    };
+	glm::vec3 cubePositions = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 pointLightPositions[] = {
-	glm::vec3( 0.7f,  0.2f,  2.0f),
-	glm::vec3( 2.3f, -3.3f, -4.0f),
-	glm::vec3(-4.0f,  2.0f, -12.0f),
-	glm::vec3( 0.0f,  0.0f, -3.0f)
+	glm::vec3( 10.0f,  0.2f,  2.0f),
+	glm::vec3( 15.3f, 3.3f, 20.0f),
+	glm::vec3(1.0f,  2.0f, 50.0f),
+	glm::vec3( 0.0f,  0.0f, 4.0f)
 };
 
 	// 0. copy our vertices array in a buffer for OpenGL to use
@@ -175,7 +164,7 @@ int main()
 
 	// directional light
 	lightingShader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
-	lightingShader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
+	lightingShader.setVec3("dirLight.ambient", 0.1f, 0.1f, 0.1f);
 	lightingShader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
 	lightingShader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
 	// point light 1
@@ -220,10 +209,14 @@ int main()
 	lightingShader.setFloat("spotLight.innerCone", glm::cos(glm::radians(12.5f)));
 	lightingShader.setFloat("spotLight.outerCone", glm::cos(glm::radians(15.0f)));
 
-
+	float velocity = 0.0f;
+	const float gravity = 9.81f;
+	glm::vec3 lastPos;
 
 	while (!glfwWindowShouldClose(window)) // Render Loop, check if the user closed the window, by clicking X or else.
 	{
+
+		float feet = camera.GetPosition().y - 1.5f;
 
 		// Deltatime calculation
 		float currentFrame = glfwGetTime();
@@ -233,6 +226,27 @@ int main()
 		processInput(window);
 
 		// RENDER
+		if((camera.GetPosition().x < -0.5f || camera.GetPosition().x > 50.5f || camera.GetPosition().z < -0.5f || camera.GetPosition().z > 50.5f))
+		{
+
+			velocity += (-9.81f/2) * ((deltaTime * deltaTime));
+
+		}
+
+		camera.SetPosition(camera.GetPosition().x, camera.GetPosition().y + velocity, camera.GetPosition().z);
+		if(feet <= 0.5f && feet > 0.0f && (camera.GetPosition().x > -0.5f && camera.GetPosition().x < 50.5f && camera.GetPosition().z > -0.5f && camera.GetPosition().z < 50.5f))
+		{
+			camera.SetPosition(camera.GetPosition().x, 2.0f, camera.GetPosition().z);
+		}
+
+		std::cout << "x : " << camera.GetPosition().x << "\n";
+		std::cout << "z : " << camera.GetPosition().z << "\n";
+		std::cout << "velocity : " << velocity << "\n";
+		std::cout << "feet : " << feet << "\n";
+		std::cout << "y : " << camera.GetPosition().y << "\n";
+
+		std::cout << "front : " << camera.GetFrontVec().x <<  " " << camera.GetFrontVec().y << " " << camera.GetFrontVec().z << "\n";
+
 
 		//glClearColor(r,g,b,1.0f);
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -266,15 +280,22 @@ int main()
 		lightingShader.setMat4("model", model);
 
 		glBindVertexArray(cubeVAO);
-		for(unsigned int i = 0; i < 10; i++)
+		for(unsigned int i = 0; i < 50; i++)
 		{
-			model = glm::mat4(1.0f);
-	    	model = glm::translate(model, cubePositions[i]);
-	    	float angle = 20.0f * i;
-	    	model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-	    	lightingShader.setMat4("model", model);
+			for(unsigned int j = 0; j < 50; j++)
+			{
+				model = glm::mat4(1.0f);
+				glm::vec3 tmp = cubePositions;
+				tmp.x = (float)i;
+				tmp.z = (float)j;
+				model = glm::translate(model, tmp);
+				//float angle = 20.0f * i;
+				//model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+				lightingShader.setMat4("model", model);
 
-	    	glDrawArrays(GL_TRIANGLES, 0, 36);
+				glDrawArrays(GL_TRIANGLES, 0, 36);
+			}
+
 		}
 
 		// Draw the lamp object
@@ -293,7 +314,7 @@ int main()
 			glDrawArrays(GL_TRIANGLES, 0 , 36);
 		}
 
-
+		lastPos = camera.GetPosition();
 		glfwSwapBuffers(window); // Swap the buffers every iterations
 		glfwPollEvents(); // Check events
 	}
@@ -332,11 +353,8 @@ void processInput(GLFWwindow* window)
 		camera.ProcessKeyboard(LEFT, deltaTime);
 	if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camera.ProcessKeyboard(RIGHT, deltaTime);
-
-//	if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-	//	camera.SetMovementSpeed(5.0f);
-	//if(glfwGetKey(window, GLFW_KEY_LEF1T_SHIFT) == GLFW_RELEASE)
-		//camera.SetMovementSpeed(camera.GetMovementSpeed()/2.0f);
+    if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+ 		camera.SetMovementSpeed(10.0f);
 
 }
 
