@@ -226,7 +226,7 @@ int main()
 		processInput(window);
 
 		// RENDER
-		if((camera.GetPosition().x < -0.5f || camera.GetPosition().x > 50.5f || camera.GetPosition().z < -0.5f || camera.GetPosition().z > 50.5f))
+		if(feet <= 0.0f || (camera.GetPosition().x < -0.5f || camera.GetPosition().x > 50.5f || camera.GetPosition().z < -0.5f || camera.GetPosition().z > 50.5f))
 		{
 
 			velocity += (-9.81f/2) * ((deltaTime * deltaTime));
@@ -353,8 +353,8 @@ void processInput(GLFWwindow* window)
 		camera.ProcessKeyboard(LEFT, deltaTime);
 	if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 		camera.ProcessKeyboard(RIGHT, deltaTime);
-    if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
- 		camera.SetMovementSpeed(10.0f);
+    //if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+ 		//camera.SetMovementSpeed(10.0f);
 
 }
 
