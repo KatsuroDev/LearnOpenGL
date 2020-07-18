@@ -4,6 +4,7 @@
 #include <cmath>
 #include "shader.h"
 #include "camera.h"
+#include "model.h"
 #include "stb_image.h"
 #include <GL/glm/glm.hpp>
 #include <GL/glm/gtc/matrix_transform.hpp>
@@ -220,6 +221,8 @@ int main()
 	lightingShader.setFloat("spotLight.innerCone", glm::cos(glm::radians(12.5f)));
 	lightingShader.setFloat("spotLight.outerCone", glm::cos(glm::radians(15.0f)));
 
+	Model backpack("./res/models/backpack/backpack.obj");
+
 
 
 	while (!glfwWindowShouldClose(window)) // Render Loop, check if the user closed the window, by clicking X or else.
@@ -252,7 +255,6 @@ int main()
 		//glActiveTexture(GL_TEXTURE2);
 		//glBindTexture(GL_TEXTURE_2D, emissionMap);
 
-
 		// CAMERA
 		glm::mat4 projection = glm::perspective(glm::radians(camera.GetFov()), (float)WINDOW_WIDTH/(float)WINDOW_HEIGHT, 0.1f, 100.0f);
 		lightingShader.setMat4("projection", projection);
@@ -265,17 +267,7 @@ int main()
 		glm::mat4 model = glm::mat4(1.0f);
 		lightingShader.setMat4("model", model);
 
-		glBindVertexArray(cubeVAO);
-		for(unsigned int i = 0; i < 10; i++)
-		{
-			model = glm::mat4(1.0f);
-	    	model = glm::translate(model, cubePositions[i]);
-	    	float angle = 20.0f * i;
-	    	model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-	    	lightingShader.setMat4("model", model);
-
-	    	glDrawArrays(GL_TRIANGLES, 0, 36);
-		}
+		backpack.Draw(lightingShader);
 
 		// Draw the lamp object
 		lightCubeShader.Use();
